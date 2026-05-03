@@ -3,41 +3,39 @@
 > Fuente de verdad de sesión compartida entre Claude Code, Gemini CLI y Kiro.
 > Formato: session-log-spec v1.0 — no editar manualmente salvo emergencia.
 ---
-<!-- CHECKPOINT id="20260502-230100-claude" -->
-## Checkpoint — 2026-05-02 23:01 | claude | dil-macmini
+<!-- SESSION id="20260502-230100-claude" status="closed" -->
+## Sesión — 2026-05-02 21:30 → 23:03 | claude | dil-macmini
 
-### Trabajado
-- `claude.lua`: soporte para 5 cuotas (five_hour, seven_day, seven_day_sonnet, seven_day_design, daily) — las 3 nuevas muestran "(pendiente)" hasta que Claude Code las emita
-- `statusline.sh`: captura automática de campos nuevos cuando Claude Code los emita (seven_day_sonnet, seven_day_design, daily)
-- `sysmon.lua`: módulo nuevo — fila base del overlay con CPU/RAM/GPU/Red/Batería
-  - Semáforo por ítem (verde <60%, amarillo <85%, rojo ≥85%)
-  - Detección de tipo de conexión (WIFI/CABLE) con íconos ≋/⌁
-  - Detección de VPN via scutil + utun
-  - Indicador de conectividad via ping a 1.1.1.1 (async, cada 10s)
-  - Batería: solo en MacBook (has_battery()), con estado de carga
-  - Expone `net_state()` y `fmt_net()` para uso desde network.lua
-- `focus_overlay.lua`: integración de sysmon — fondo siempre neutro, styledtext con colores por ítem; fix para aceptar styledtext userdata directo
-- `menu.lua`: nueva sección SISTEMA con ⬡ Monitor (CPU/RAM/GPU + batería) y 🔋 Batería
-- `network.lua`: submenú RED enriquecido — tipo conexión (⌁ CABLE / ≋ WIFI), VPN on/off, velocidad ↑↓ desde sysmon
-- Symlink creado: `~/.hammerspoon/macspaces/sysmon.lua`
+### Resumen
+Sesión enfocada en enriquecer el overlay y el menú de Hammerspoon con métricas del sistema (CPU/RAM/GPU, red, batería) y actualización del módulo de cuotas de Claude para soportar las nuevas cuotas de la plataforma. Se creó el módulo `sysmon.lua` como fuente de verdad de métricas del sistema, integrado en overlay, menú principal y sección RED.
 
 ### Decisiones
-- Red quitada del banner (ruido), solo en menú RED: cambia poco y no justifica espacio permanente
-- Batería en Mac Mini: no se muestra nada (has_battery() = false)
-- Fondo de fila sysmon siempre neutro (pct=0): el semáforo está en el texto, no en el fondo
-- `net_state()` y `fmt_net()` expuestos desde sysmon para evitar duplicar lógica en network.lua
-- Íconos ≋/⌁ elegidos para WIFI/CABLE — pendiente validar render en el banner
+- **Semáforo por ítem, no por fila**: el color de fondo de la fila sysmon es siempre neutro; cada métrica tiene su propio color — más informativo, menos alarmista
+- **Red fuera del banner**: cambia poco en tiempo real, genera ruido; vive solo en el menú RED
+- **Batería solo en MacBook**: `has_battery()` como gate; Mac Mini muestra nada
+- **`sysmon` como fuente única**: `net_state()` y `fmt_net()` expuestos para que `network.lua` no duplique lógica
+- **Cuotas nuevas como pendiente**: Claude Code aún no emite `seven_day_sonnet`, `seven_day_design`, `daily` en el hook de statusline — se muestran como "(pendiente)" y el código ya está listo para recibirlas
+- **Íconos ≋/⌁** para WIFI/CABLE — pendiente confirmar render en el banner real
+
+### Cambios
+- `macspaces/sysmon.lua`: módulo nuevo — CPU (async), RAM (vm_stat), GPU (ioreg), conectividad (ping 1.1.1.1), tipo conexión (WIFI/CABLE via networksetup), VPN (scutil + utun), batería; styledtext con semáforo por ítem; expone `net_state()`, `fmt_net()`, `build_submenu()`
+- `macspaces/claude.lua`: soporte para 5 cuotas; helper `quota_rows()`; campos pendientes marcados con TODO
+- `macspaces/focus_overlay.lua`: integración sysmon; fix styledtext userdata; colores sysmon_ok/warn/crit; fila sysmon siempre visible al final
+- `macspaces/menu.lua`: sección SISTEMA con ⬡ Monitor y 🔋 Batería
+- `macspaces/network.lua`: submenú RED con tipo conexión, VPN, velocidad ↑↓ desde sysmon
+- `~/.claude/statusline.sh`: captura automática de campos nuevos cuando Claude Code los emita
+- `~/.hammerspoon/macspaces/sysmon.lua`: symlink creado manualmente
 
 ### Pendientes
-- [ ] Validar render de ≋ y ⌁ en el banner (usuario pendiente de reporte)
-- [ ] Cuando Claude Code emita seven_day_sonnet/seven_day_design/daily: quitar marca "(pendiente)"
-- [ ] Commitear cambios de esta sesión y hacer release
+- [ ] Confirmar render de ≋ y ⌁ en el banner (usuario pendiente de reporte)
+- [ ] Cuando Claude Code emita las nuevas cuotas: quitar marca "(pendiente)" en `claude.lua`
+- [ ] Release: bump semver + changelog + push
 
 ### Contexto
-- Todos los archivos editados son symlinks a `github-dilware/tool-utilitario/macspaces/`
-- sysmon.lua es archivo nuevo — requiere symlink manual (ya creado en esta sesión)
-- La detección WIFI/CABLE usa networksetup + comparación de IP — puede dar "cable" en Mac Mini aunque sea correcto
-<!-- END CHECKPOINT id="20260502-230100-claude" -->
+- El symlink de `sysmon.lua` se crea manualmente — `install.sh` no lo incluye aún; agregar en próxima sesión
+- Detección WIFI/CABLE compara IP de `networksetup -getinfo Wi-Fi` con la IP de la interfaz primaria — funciona en MacBook, en Mac Mini siempre devuelve "cable" (correcto)
+- `install.sh` deberá incluir el symlink de sysmon.lua en próxima actualización
+<!-- END SESSION id="20260502-230100-claude" status="closed" -->
 
 <!-- CHECKPOINT id="20260423-231627-claude" -->
 ## Checkpoint — 2026-04-23 23:16 | claude | dil-macmini
@@ -48,29 +46,7 @@
 - `CLAUDE.md` del workspace actualizado con nuevo nombre de repo y carpeta (`tool-utilitario/`)
 <!-- END CHECKPOINT id="20260423-231627-claude" -->
 
-<!-- SESSION id="20260419-104333-kiro" -->
-## Sesión cerrada — 2026-04-19 11:17 | kiro | dil-macbook
-
-### Resumen
-- `gemini.lua`: auto-refresh cada 5min via `hs.task` + `hs.timer`; `gemini-usage.sh` integrado al repo
-- Overlay: posición inferior izquierda, borde absoluto (`fullFrame()`)
-- `config.lua`: soporte `config_local.lua` para overrides (merge shallow)
-- `install.sh`: reescrito — detección local/remoto, symlinks, `--dry-run`, `config_local.lua` como plantilla
-- Auditoría del instalador: corregido `set_browser.lua` fantasma, `rm -f` antes de symlink, `bt_devices.swift` en modo remoto
-- Push directo a `main`, feature branch eliminada
-
-### Versión
-v2.14.0 — `f9499fd` en `main`
-
-### Pendientes
-- Verificar instalación limpia en Mac mini
-- Modo remoto (`curl|bash`) no testeado en real
-- Considerar persistir posición del overlay en disco
-<!-- END SESSION id="20260419-104333-kiro" -->
-
-<!-- CHECKPOINT id="20260419-005345-gemini" -->
-## Checkpoint — 2026-04-19 00:53 | gemini | dil-macbook
-
-### Contexto
-Sesión interrumpida sin cierre explícito — recuperada al reiniciar.
-<!-- END CHECKPOINT id="20260419-005345-gemini" -->
+<!-- ARCHIVE -->
+**v2.14.0** (2026-04-19, kiro): gemini.lua auto-refresh, overlay inferior-izquierda, install.sh reescrito, config_local.lua, fix symlinks. Push a main.
+**v2.14.0** (2026-04-19, gemini): sesión interrumpida sin cierre — sin cambios relevantes.
+<!-- END ARCHIVE -->
