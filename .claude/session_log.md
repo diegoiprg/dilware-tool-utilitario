@@ -3,6 +3,26 @@
 > Fuente de verdad de sesión compartida entre Claude Code, Gemini CLI y Kiro.
 > Formato: session-log-spec v1.0 — no editar manualmente salvo emergencia.
 ---
+<!-- CHECKPOINT id="20260505-004200-claude" -->
+## Checkpoint — 2026-05-05 00:42 | claude | dil-macmini
+
+### Trabajado
+- Fix de color en styledtext: constructor con `{color=...}` en lugar de `setStyle()` — colores aparecieron
+- Fix de canvas congelado: `patch_canvas` no actualizaba el frame del texto cuando cambiaba el ancho de la fila Claude — ahora `render()` también compara `inner_w` con `last_inner_w` y reconstruye el canvas si cambió
+
+### Decisiones
+- **Rebuild por ancho además de por count**: el frame del texto en `patch_canvas` es fijo — si el contenido crece (ej. `5h 58%` → `5h 76%  7d 68%`), el texto queda truncado y los colores invisibles. Solución: reconstruir cuando `inner_w` cambia
+
+### Pendientes
+- [ ] Confirmar visualmente que colores y texto completo se ven correctamente tras recarga
+- [ ] Cuando Claude Code emita cuotas adicionales: aparecerán automáticamente
+- [ ] Agregar symlink de `sysmon.lua` a `install.sh`
+- [ ] Release: bump semver + changelog + push
+
+### Contexto
+- `last_inner_w` agregado a `focus_overlay.lua` como segunda condición de rebuild del canvas
+<!-- END CHECKPOINT id="20260505-004200-claude" -->
+
 <!-- SESSION id="20260505-003800-claude" status="closed" -->
 ## Sesión — 2026-05-05 00:00 → 00:39 | claude | dil-macmini
 
