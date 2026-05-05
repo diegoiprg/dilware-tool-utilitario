@@ -3,6 +3,35 @@
 > Fuente de verdad de sesión compartida entre Claude Code, Gemini CLI y Kiro.
 > Formato: session-log-spec v1.0 — no editar manualmente salvo emergencia.
 ---
+<!-- CHECKPOINT id="20260505-003800-claude" -->
+## Checkpoint — 2026-05-05 00:38 | claude | dil-macmini
+
+### Trabajado
+- Quitado Gemini del banner (`focus_overlay.lua`): import + filas de `gemini.overlay_rows()` eliminados — libera espacio hasta que funcione
+- Gemini conservado en el menú principal (ítem + require) para retomar en el futuro
+- Diagnóstico de cuotas de Claude: captura de payload real del hook `statusLine` — confirmado que Claude Code solo emite `five_hour` y `seven_day`; los campos `seven_day_sonnet`, `seven_day_design`, `daily` aparecen en la app pero no en el hook
+- Submenú Claude limpiado: eliminadas 3 filas fijas `(pendiente)` — ahora se muestran solo si Claude Code las emite
+- TODOs misleading eliminados de `claude.lua` y `statusline.sh`
+- Fila Claude en el banner rediseñada al estilo de sysmon: `hs.styledtext` con segmentos coloreados individualmente por porcentaje (semáforo verde/amarillo/rojo), fondo neutro oscuro
+- Fix de color en styledtext: el color ahora va en el constructor `hs.styledtext.new(text, {color=...})` en lugar de `setStyle()` posterior — el `setStyle` era el punto de falla silencioso
+- Texto "✦ Claude" añadido como prefijo dim en la fila del banner
+
+### Decisiones
+- **Gemini fuera del banner, no del menú**: quita ruido sin perder el trabajo hecho — cuando funcione se reactiva
+- **Cuotas opcionales silenciosas**: sin datos = sin fila. No mostrar `(pendiente)` que nunca se resuelve
+- **Color en constructor, no en setStyle**: `hs.styledtext.new(text, {color=...})` es el patrón correcto en Hammerspoon; `setStyle` posterior con rango `-1` es inestable
+- **Fondo neutro siempre**: igual que sysmon — el estado se comunica por el color del texto, no por el fondo de la píldora
+
+### Pendientes
+- [ ] Verificar que los colores del banner de Claude se ven correctamente tras el fix del constructor
+- [ ] Cuando Claude Code emita las cuotas adicionales: aparecerán automáticamente sin cambios de código
+- [ ] Release: bump semver + changelog + push
+
+### Contexto
+- `~/.claude/statusline.sh` modificado (backup en `.bak`): la captura defensiva de campos opcionales está intacta para cuando lleguen
+- El symlink de `sysmon.lua` en `~/.hammerspoon/macspaces/` sigue siendo manual — `install.sh` no lo incluye aún
+<!-- END CHECKPOINT id="20260505-003800-claude" -->
+
 <!-- CHECKPOINT id="20260503-225600-claude" -->
 ## Checkpoint — 2026-05-03 22:56 | claude | dil-macmini
 
@@ -34,37 +63,10 @@ Sesión enfocada en enriquecer el overlay y el menú de Hammerspoon con métrica
 - **`sysmon` como fuente única**: `net_state()` y `fmt_net()` expuestos para que `network.lua` no duplique lógica
 - **Cuotas nuevas como pendiente**: Claude Code aún no emite `seven_day_sonnet`, `seven_day_design`, `daily` en el hook de statusline — se muestran como "(pendiente)" y el código ya está listo para recibirlas
 - **Íconos ≋/⌁** para WIFI/CABLE — pendiente confirmar render en el banner real
-
-### Cambios
-- `macspaces/sysmon.lua`: módulo nuevo — CPU (async), RAM (vm_stat), GPU (ioreg), conectividad (ping 1.1.1.1), tipo conexión (WIFI/CABLE via networksetup), VPN (scutil + utun), batería; styledtext con semáforo por ítem; expone `net_state()`, `fmt_net()`, `build_submenu()`
-- `macspaces/claude.lua`: soporte para 5 cuotas; helper `quota_rows()`; campos pendientes marcados con TODO
-- `macspaces/focus_overlay.lua`: integración sysmon; fix styledtext userdata; colores sysmon_ok/warn/crit; fila sysmon siempre visible al final
-- `macspaces/menu.lua`: sección SISTEMA con ⬡ Monitor y 🔋 Batería
-- `macspaces/network.lua`: submenú RED con tipo conexión, VPN, velocidad ↑↓ desde sysmon
-- `~/.claude/statusline.sh`: captura automática de campos nuevos cuando Claude Code los emita
-- `~/.hammerspoon/macspaces/sysmon.lua`: symlink creado manualmente
-
-### Pendientes
-- [ ] Confirmar render de ≋ y ⌁ en el banner (usuario pendiente de reporte)
-- [ ] Cuando Claude Code emita las nuevas cuotas: quitar marca "(pendiente)" en `claude.lua`
-- [ ] Release: bump semver + changelog + push
-
-### Contexto
-- El symlink de `sysmon.lua` se crea manualmente — `install.sh` no lo incluye aún; agregar en próxima sesión
-- Detección WIFI/CABLE compara IP de `networksetup -getinfo Wi-Fi` con la IP de la interfaz primaria — funciona en MacBook, en Mac Mini siempre devuelve "cable" (correcto)
-- `install.sh` deberá incluir el symlink de sysmon.lua en próxima actualización
 <!-- END SESSION id="20260502-230100-claude" status="closed" -->
 
-<!-- CHECKPOINT id="20260423-231627-claude" -->
-## Checkpoint — 2026-04-23 23:16 | claude | dil-macmini
-
-### Trabajado
-- Repo renombrado en GitHub de `dilware-tool-macGestorEntorno` a `dilware-tool-utilitario`
-- Remote local actualizado: `git@github.com:diegoiprg/dilware-tool-utilitario.git`
-- `CLAUDE.md` del workspace actualizado con nuevo nombre de repo y carpeta (`tool-utilitario/`)
-<!-- END CHECKPOINT id="20260423-231627-claude" -->
-
 <!-- ARCHIVE -->
+**v2.14.0** (2026-04-23, claude): repo renombrado a dilware-tool-utilitario, remote local actualizado, CLAUDE.md actualizado.
 **v2.14.0** (2026-04-19, kiro): gemini.lua auto-refresh, overlay inferior-izquierda, install.sh reescrito, config_local.lua, fix symlinks. Push a main.
 **v2.14.0** (2026-04-19, gemini): sesión interrumpida sin cierre — sin cambios relevantes.
 <!-- END ARCHIVE -->
