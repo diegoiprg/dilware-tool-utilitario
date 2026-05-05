@@ -3,66 +3,60 @@
 > Fuente de verdad de sesión compartida entre Claude Code, Gemini CLI y Kiro.
 > Formato: session-log-spec v1.0 — no editar manualmente salvo emergencia.
 ---
-<!-- CHECKPOINT id="20260505-003800-claude" -->
-## Checkpoint — 2026-05-05 00:38 | claude | dil-macmini
+<!-- SESSION id="20260505-003800-claude" status="closed" -->
+## Sesión — 2026-05-05 00:00 → 00:39 | claude | dil-macmini
 
-### Trabajado
-- Quitado Gemini del banner (`focus_overlay.lua`): import + filas de `gemini.overlay_rows()` eliminados — libera espacio hasta que funcione
-- Gemini conservado en el menú principal (ítem + require) para retomar en el futuro
-- Diagnóstico de cuotas de Claude: captura de payload real del hook `statusLine` — confirmado que Claude Code solo emite `five_hour` y `seven_day`; los campos `seven_day_sonnet`, `seven_day_design`, `daily` aparecen en la app pero no en el hook
-- Submenú Claude limpiado: eliminadas 3 filas fijas `(pendiente)` — ahora se muestran solo si Claude Code las emite
-- TODOs misleading eliminados de `claude.lua` y `statusline.sh`
-- Fila Claude en el banner rediseñada al estilo de sysmon: `hs.styledtext` con segmentos coloreados individualmente por porcentaje (semáforo verde/amarillo/rojo), fondo neutro oscuro
-- Fix de color en styledtext: el color ahora va en el constructor `hs.styledtext.new(text, {color=...})` en lugar de `setStyle()` posterior — el `setStyle` era el punto de falla silencioso
-- Texto "✦ Claude" añadido como prefijo dim en la fila del banner
+### Resumen
+Sesión enfocada en el banner overlay y el módulo de cuotas de Claude. Se quitó Gemini del banner (conservado en el menú), se limpió el submenú de Claude eliminando filas `(pendiente)` permanentes, y se rediseñó la fila Claude del banner al estilo sysmon con styledtext coloreado por segmento.
 
 ### Decisiones
-- **Gemini fuera del banner, no del menú**: quita ruido sin perder el trabajo hecho — cuando funcione se reactiva
-- **Cuotas opcionales silenciosas**: sin datos = sin fila. No mostrar `(pendiente)` que nunca se resuelve
-- **Color en constructor, no en setStyle**: `hs.styledtext.new(text, {color=...})` es el patrón correcto en Hammerspoon; `setStyle` posterior con rango `-1` es inestable
-- **Fondo neutro siempre**: igual que sysmon — el estado se comunica por el color del texto, no por el fondo de la píldora
+- **Gemini fuera del banner, no del menú**: quita ruido sin perder el trabajo — cuando funcione se reactiva en `focus_overlay.lua`
+- **Cuotas opcionales silenciosas**: sin datos del hook = sin fila. Aparecen automáticamente cuando Claude Code las emita
+- **Color en constructor styledtext**: `hs.styledtext.new(text, {color=...})` es el patrón correcto; `setStyle()` posterior con rango `-1` es inestable en Hammerspoon — era el punto de falla silencioso
+- **Fondo neutro siempre en fila Claude**: mismo patrón que sysmon — estado comunicado por color del texto, no por fondo de la píldora
+
+### Cambios
+- `macspaces/focus_overlay.lua`: eliminado import y filas de `gemini.overlay_rows()`; fila Claude usa `row.bg` en lugar de `claude.color_for(row.pct)`
+- `macspaces/menu.lua`: Gemini conservado (import + ítem)
+- `macspaces/claude.lua`: `overlay_rows()` rediseñado con styledtext segmentado; color en constructor; fondo `ROW_BG` neutro; submenú sin filas fijas `(pendiente)`; TODOs eliminados
+- `~/.claude/statusline.sh`: comentarios corregidos; captura defensiva de campos opcionales intacta
 
 ### Pendientes
-- [ ] Verificar que los colores del banner de Claude se ven correctamente tras el fix del constructor
-- [ ] Cuando Claude Code emita las cuotas adicionales: aparecerán automáticamente sin cambios de código
+- [ ] Verificar visualmente que los colores del banner de Claude funcionan tras el fix del constructor styledtext
+- [ ] Cuando Claude Code emita `seven_day_sonnet`, `seven_day_design`, `daily`: aparecerán automáticamente
+- [ ] Agregar symlink de `sysmon.lua` a `install.sh`
 - [ ] Release: bump semver + changelog + push
 
 ### Contexto
-- `~/.claude/statusline.sh` modificado (backup en `.bak`): la captura defensiva de campos opcionales está intacta para cuando lleguen
-- El symlink de `sysmon.lua` en `~/.hammerspoon/macspaces/` sigue siendo manual — `install.sh` no lo incluye aún
-<!-- END CHECKPOINT id="20260505-003800-claude" -->
+- Payload real del hook `statusLine` confirmado: solo `five_hour` y `seven_day` — los demás campos existen en la app pero Claude Code no los emite aún
+- `~/.claude/statusline.sh.bak` existe como backup de antes de la sesión
+- El symlink `~/.hammerspoon/macspaces/sysmon.lua` es manual — no está en `install.sh`
+<!-- END SESSION id="20260505-003800-claude" status="closed" -->
 
-<!-- CHECKPOINT id="20260503-225600-claude" -->
-## Checkpoint — 2026-05-03 22:56 | claude | dil-macmini
+<!-- SESSION id="20260503-225600-claude" status="closed" -->
+## Sesión — 2026-05-03 22:56 → 23:01 | claude | dil-macmini
 
-### Trabajado
-- Diagnóstico del parpadeo del banner del overlay: causa raíz = `destroy_canvas()` + recreación completa en cada tick de 1s
-- Fix en `focus_overlay.lua`: separación en `build_canvas()` (construcción completa, solo en cambio estructural) y `patch_canvas()` (actualización in-place de color + texto sin destruir el canvas)
-- El canvas ahora persiste entre ticks; solo se reconstruye si cambia el número de filas
-- Recarga de Hammerspoon aplicada vía `open -g hammerspoon://reload`
+### Resumen
+Fix del parpadeo del banner overlay: separación de `build_canvas()` y `patch_canvas()` para evitar destruir y recrear el canvas en cada tick de 1s.
 
 ### Decisiones
-- **patch_canvas en lugar de destroy+rebuild**: el canvas de Hammerspoon soporta mutación directa de propiedades — más eficiente y elimina el parpadeo sin cambiar la lógica de `get_entries()` ni `sysmon`
-- **Reconstrucción estructural conservada**: cuando cambia el número de filas (ej. activar Pomodoro), se reconstruye completo — correcto porque cambian frames y posiciones
+- **patch_canvas en lugar de destroy+rebuild**: canvas de Hammerspoon soporta mutación directa — elimina parpadeo sin cambiar lógica de `get_entries()` ni `sysmon`
+- **Reconstrucción estructural conservada**: solo cuando cambia el número de filas
 
 ### Contexto
-- Frecuencia de actualización de datos: CPU/RAM/GPU cada 2s (`CACHE_TTL`), red/conectividad cada 10s (`NET_CHECK_TTL`), overlay redibuja cada 1s
-- La "info estática" que reportó el usuario es por diseño (2s de cache) — no es un bug
-<!-- END CHECKPOINT id="20260503-225600-claude" -->
+- CPU/RAM/GPU cada 2s, red cada 10s, overlay redibuja cada 1s — la "info estática" es por diseño
+<!-- END SESSION id="20260503-225600-claude" status="closed" -->
 
 <!-- SESSION id="20260502-230100-claude" status="closed" -->
 ## Sesión — 2026-05-02 21:30 → 23:03 | claude | dil-macmini
 
 ### Resumen
-Sesión enfocada en enriquecer el overlay y el menú de Hammerspoon con métricas del sistema (CPU/RAM/GPU, red, batería) y actualización del módulo de cuotas de Claude para soportar las nuevas cuotas de la plataforma. Se creó el módulo `sysmon.lua` como fuente de verdad de métricas del sistema, integrado en overlay, menú principal y sección RED.
+Creación de `sysmon.lua` con CPU/RAM/GPU/red/batería integrado en overlay, menú y sección RED. Actualización de `claude.lua` para soportar nuevas cuotas de la plataforma.
 
 ### Decisiones
-- **Semáforo por ítem, no por fila**: el color de fondo de la fila sysmon es siempre neutro; cada métrica tiene su propio color — más informativo, menos alarmista
-- **Red fuera del banner**: cambia poco en tiempo real, genera ruido; vive solo en el menú RED
-- **Batería solo en MacBook**: `has_battery()` como gate; Mac Mini muestra nada
-- **`sysmon` como fuente única**: `net_state()` y `fmt_net()` expuestos para que `network.lua` no duplique lógica
-- **Cuotas nuevas como pendiente**: Claude Code aún no emite `seven_day_sonnet`, `seven_day_design`, `daily` en el hook de statusline — se muestran como "(pendiente)" y el código ya está listo para recibirlas
-- **Íconos ≋/⌁** para WIFI/CABLE — pendiente confirmar render en el banner real
+- **Semáforo por ítem, fondo neutro**: cada métrica tiene su propio color — más informativo, menos alarmista
+- **`sysmon` como fuente única**: `net_state()` y `fmt_net()` expuestos para `network.lua`
+- **Batería solo en MacBook**: `has_battery()` como gate
 <!-- END SESSION id="20260502-230100-claude" status="closed" -->
 
 <!-- ARCHIVE -->
