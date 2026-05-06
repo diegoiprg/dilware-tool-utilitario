@@ -1,4 +1,22 @@
-# Session Log — dilware-tool-macGestorEntorno
+# Session Log
+
+## SESSION 2026-05-05 14:58–19:57 | Kiro | dil-macbook
+
+### Completado
+- fix(profiles): PWAs de Edge no abrían en MacBook — bundle IDs en config_local.lua
+- feat(overlay): rediseño completo para MacBook — alas CPU/RAM flanqueando notch + panel hover
+- Panel hover: GPU, discos, red, batería, Claude, descanso, pomodoro
+- UX unificada: labels blancos, valores con semáforo, separadores gris, MAYÚSCULAS
+- feat(menu): unificado en un solo ícono (eliminado menú auxiliar ◎)
+- chore: eliminados Música y Presentación del menú (sin uso)
+- docs: creado docs/adn.md — biblia del proyecto con estándares UX/UI y SEMVER
+
+### Versión final: 2.16.1
+
+### Pendientes
+- Color dinámico de tráfico de red no funciona (datos llegan como 0 por timing de sysmon)
+- Verificar overlay en Mac Mini mañana (banner clásico sin cambios)
+- Error preexistente en dnd.lua:15 (`hs.host.focus` API cambió) — no bloquea pero aparece al reload — dilware-tool-macGestorEntorno
 
 > Fuente de verdad de sesión compartida entre Claude Code, Gemini CLI y Kiro.
 > Formato: session-log-spec v1.0 — no editar manualmente salvo emergencia.
