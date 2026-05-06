@@ -89,6 +89,27 @@ local function build_items()
     table.insert(items, { title = "🌐  Navegador", menu = browsers.build_submenu(refresh) })
     table.insert(items, { title = "🔊  Audio", menu = audio.build_submenu() })
 
+    -- ══ Enfoque ══
+    table.insert(items, { title = "-" })
+    table.insert(items, utils.disabled_item("ENFOQUE"))
+    if pomodoro.is_active() then
+        local pom = require("macspaces.pomodoro")
+        table.insert(items, utils.disabled_item("🍅  ●  " .. (pom.menubar_label() or "")))
+        table.insert(items, { title = "     ⏭  Saltar fase", fn = function() pom.skip(); refresh() end })
+        table.insert(items, { title = "     ⏹  Detener", fn = function() pom.stop(); refresh() end })
+    else
+        table.insert(items, { title = "🍅  ▶  Iniciar Pomodoro", fn = function() pomodoro.start(); refresh() end })
+    end
+    local breaks_mod = require("macspaces.breaks")
+    if breaks_mod.is_enabled() then
+        local idle = breaks_mod.idle_label()
+        local time_part = idle and tostring(idle):match("·%s*(.+)$") or ""
+        table.insert(items, utils.disabled_item("◎  ●  Cada " .. cfg.breaks.interval_minutes .. " min  ·  " .. time_part))
+        table.insert(items, { title = "     ⏹  Desactivar descanso", fn = function() breaks_mod.disable(refresh) end })
+    else
+        table.insert(items, { title = "◎  ▶  Activar descanso", fn = function() breaks_mod.enable(refresh) end })
+    end
+
     -- ══ Sistema ══
     table.insert(items, { title = "-" })
     table.insert(items, utils.disabled_item("SISTEMA"))
