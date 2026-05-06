@@ -1,5 +1,28 @@
 # Session Log
 
+<!-- SESSION id="20260506-000000-kiro" status="closed" -->
+## Sesión — 2026-05-06 00:00 → 00:09 | kiro | dil-macmini
+
+### Resumen
+Unificación del overlay: Mac Mini ahora usa el mismo layout de alas en la menu bar que MacBook (sin gap del notch). Fix de discos fantasma en el panel.
+
+### Completado
+- feat(overlay): Mac Mini usa layout de alas CPU%|RAM% en menu bar (igual que MacBook, sin gap del notch)
+- fix(overlay): filtrar snapshots de Time Machine y volúmenes Xcode Simulator del panel de discos
+- refactor(overlay): eliminado render_classic, get_all_entries, drag y variables asociadas — código muerto
+- docs(adn): actualizado para reflejar layout unificado (alas en ambos dispositivos)
+
+### Decisiones
+- Gap entre alas: 220px (notch) en MacBook vs 6px en Mac Mini — pills prácticamente juntas
+- Filtro de discos: `grep -v '.timemachine' | grep -v 'CoreSimulator'`
+
+### Pendientes
+- [ ] Release: bump semver + changelog + push (cambios sin commitear)
+- [ ] Verificar hover del panel en Mac Mini funciona correctamente con uso prolongado
+- [ ] Pendiente de sesión anterior: symlink de `sysmon.lua` en `install.sh`
+
+<!-- END SESSION id="20260506-000000-kiro" status="closed" -->
+
 <!-- SESSION id="20260505-205000-kiro" status="closed" -->
 ## Sesión — 2026-05-05 20:50 → 21:25 | kiro | dil-macbook
 
