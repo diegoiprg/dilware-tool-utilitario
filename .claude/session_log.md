@@ -1,5 +1,32 @@
 # Session Log
 
+<!-- SESSION id="20260505-205000-kiro" status="closed" -->
+## Sesión — 2026-05-05 20:50 → 21:25 | kiro | dil-macbook
+
+### Resumen
+Auditoría del menú y overlay contra Apple HIG + biblia del proyecto. Corrección de documentación desactualizada (2 menús → 1 menú unificado) y dos bugs en el overlay.
+
+### Completado
+- Auditoría menú vs Apple HIG: APROBADO — cumple template image, checkmarks, separadores, atajos visibles, submenús
+- docs: README, funcional, ux-hig, arquitectura, seguridad, modulos, todo — actualizados a 1 menú unificado + overlay
+- docs: eliminadas todas las referencias a `overlay_pos.json` (persistencia no deseada)
+- docs: Claude/Gemini documentados como "solo overlay" (sin submenú en menú principal)
+- docs: Apple Music documentado como módulo sin presencia en menú
+- fix(overlay): `C_NET` no definida — tráfico de red siempre mostraba color dim
+- fix(overlay): disco del sistema usaba `df -g` (GiB, solo volumen Data) — cambiado a `diskutil info /` (GB base 1000, container completo, consistente con widget Apple)
+- fix(overlay): discos externos cambiados de `df -g` a `df -H` (base 1000)
+
+### Decisiones
+- Persistencia de posición del overlay descartada por decisión del usuario — posición en memoria es suficiente
+- `C_NET` definida como cyan claro (0.40, 0.80, 0.95) — diferenciada de `C_BLUE`
+
+### Pendientes
+- [ ] Verificar overlay tras ⌘R — disco debe mostrar ~287 de 494 GB (58%)
+- [ ] Tráfico de red: confirmar que `C_NET` se ve correctamente cuando hay actividad
+- [ ] Release pendiente con estos fixes
+
+<!-- END SESSION id="20260505-205000-kiro" status="closed" -->
+
 ## SESSION 2026-05-05 14:58–19:57 | Kiro | dil-macbook
 
 ### Completado
